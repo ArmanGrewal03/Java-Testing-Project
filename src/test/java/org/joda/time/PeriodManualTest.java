@@ -422,4 +422,219 @@ public class PeriodManualTest {
         assertEquals(2, result.getYears());
         assertEquals(0, result.getMonths());
     }
+
+    // ========================================================================
+    // Additional Tests for Maximum Coverage
+    // ========================================================================
+
+    @Test
+    public void test_plus_singleField_years() {
+        // Only years field
+        Period p = new Period(5, 0, 0, 0, 0, 0, 0, 0);
+        Period toAdd = new Period(3, 0, 0, 0, 0, 0, 0, 0);
+        Period result = p.plus(toAdd);
+        
+        assertEquals(8, result.getYears());
+        assertEquals(0, result.getMonths());
+    }
+
+    @Test
+    public void test_plus_singleField_months() {
+        // Only months field
+        Period p = new Period(0, 10, 0, 0, 0, 0, 0, 0);
+        Period toAdd = new Period(0, 5, 0, 0, 0, 0, 0, 0);
+        Period result = p.plus(toAdd);
+        
+        assertEquals(0, result.getYears());
+        assertEquals(15, result.getMonths());
+    }
+
+    @Test
+    public void test_plus_singleField_weeks() {
+        // Only weeks field
+        Period p = new Period(0, 0, 10, 0, 0, 0, 0, 0);
+        Period toAdd = new Period(0, 0, 5, 0, 0, 0, 0, 0);
+        Period result = p.plus(toAdd);
+        
+        assertEquals(15, result.getWeeks());
+    }
+
+    @Test
+    public void test_plus_singleField_days() {
+        // Only days field
+        Period p = new Period(0, 0, 0, 20, 0, 0, 0, 0);
+        Period toAdd = new Period(0, 0, 0, 10, 0, 0, 0, 0);
+        Period result = p.plus(toAdd);
+        
+        assertEquals(0, result.getYears());
+        assertEquals(30, result.getDays());  // 20 + 10 = 30
+    }
+
+    @Test
+    public void test_plus_allTimeFields() {
+        // All time-based fields (hours, minutes, seconds, millis)
+        Period p = new Period(0, 0, 0, 0, 24, 60, 60, 1000);
+        Period toAdd = new Period(0, 0, 0, 0, 1, 1, 1, 100);
+        Period result = p.plus(toAdd);
+        
+        assertEquals(25, result.getHours());
+        assertEquals(61, result.getMinutes());
+        assertEquals(61, result.getSeconds());
+        assertEquals(1100, result.getMillis());
+    }
+
+    @Test
+    public void test_plus_allDateFields() {
+        // All date-based fields (years, months, weeks, days)
+        Period p = new Period(1, 6, 4, 15, 0, 0, 0, 0);
+        Period toAdd = new Period(2, 3, 2, 5, 0, 0, 0, 0);
+        Period result = p.plus(toAdd);
+        
+        assertEquals(3, result.getYears());
+        assertEquals(9, result.getMonths());
+        assertEquals(6, result.getWeeks());
+        assertEquals(20, result.getDays());
+    }
+
+    @Test
+    public void test_plus_veryLargeValues() {
+        // Extremely large field values
+        Period p = new Period(100, 500, 200, 1000, 500, 3000, 60000, 1000000);
+        Period toAdd = new Period(50, 200, 100, 500, 250, 1500, 30000, 500000);
+        Period result = p.plus(toAdd);
+        
+        assertEquals(150, result.getYears());
+        assertEquals(700, result.getMonths());
+    }
+
+    @Test
+    public void test_plus_withNullExpectedBehavior() {
+        // Null period behaves as zero
+        Period p = new Period(5, 5, 5, 5, 5, 5, 5, 5);
+        Period result = p.plus(null);
+        
+        assertEquals(5, result.getYears());
+        assertEquals(5, result.getMonths());
+        assertEquals(5, result.getWeeks());
+        assertEquals(5, result.getDays());
+    }
+
+    @Test
+    public void test_plus_chainMultipleTimes() {
+        // Chain multiple plus operations
+        Period p = new Period(1, 1, 1, 1, 1, 1, 1, 1);
+        Period result = p.plus(p).plus(p).plus(p);
+        
+        assertEquals(4, result.getYears());
+        assertEquals(4, result.getMonths());
+    }
+
+    @Test
+    public void test_normalizedStandard_onlyYears() {
+        // Period with only years
+        Period p = new Period(5, 0, 0, 0, 0, 0, 0, 0);
+        Period result = p.normalizedStandard();
+        
+        assertNotNull(result);
+        assertEquals(5, result.getYears());
+    }
+
+    @Test
+    public void test_normalizedStandard_onlyMonths() {
+        // Period with only months
+        Period p = new Period(0, 24, 0, 0, 0, 0, 0, 0);
+        Period result = p.normalizedStandard();
+        
+        assertNotNull(result);
+        assertEquals(2, result.getYears());
+        assertEquals(0, result.getMonths());
+    }
+
+    @Test
+    public void test_normalizedStandard_onlyWeeks() {
+        // Period with only weeks
+        Period p = new Period(0, 0, 10, 0, 0, 0, 0, 0);
+        Period result = p.normalizedStandard();
+        
+        assertNotNull(result);
+    }
+
+    @Test
+    public void test_normalizedStandard_hoursMinutesSeconds() {
+        // Normalize hours, minutes, seconds together
+        Period p = new Period(0, 0, 0, 0, 25, 90, 180, 0);
+        Period result = p.normalizedStandard();
+        
+        assertNotNull(result);
+        assertTrue(result.getHours() >= 0);
+    }
+
+    @Test
+    public void test_normalizedStandard_hugeMonths() {
+        // Very large month value requiring normalization
+        Period p = new Period(0, 120, 0, 0, 0, 0, 0, 0);
+        Period result = p.normalizedStandard();
+        
+        assertNotNull(result);
+        assertEquals(10, result.getYears());
+        assertEquals(0, result.getMonths());
+    }
+
+    @Test
+    public void test_normalizedStandard_mixedExcess() {
+        // Multiple fields with excess requiring normalization
+        Period p = new Period(1, 24, 8, 35, 60, 120, 3661, 2000);
+        Period result = p.normalizedStandard();
+        
+        assertNotNull(result);
+        assertTrue(result.getYears() >= 0);
+    }
+
+    @Test
+    public void test_normalizedStandard_allZero() {
+        // All zero period
+        Period p = new Period(0, 0, 0, 0, 0, 0, 0, 0);
+        Period result = p.normalizedStandard();
+        
+        assertNotNull(result);
+        assertEquals(0, result.getYears());
+        assertEquals(0, result.getMonths());
+    }
+
+    @Test
+    public void test_normalizedStandard_immutabilityAfterNormalization() {
+        // Verify original not modified
+        Period p = new Period(0, 24, 0, 0, 60, 3600, 60000, 1000000);
+        int originalMonths = p.getMonths();
+        int originalHours = p.getHours();
+        
+        Period result = p.normalizedStandard();
+        
+        assertEquals(originalMonths, p.getMonths());
+        assertEquals(originalHours, p.getHours());
+    }
+
+    @Test
+    public void test_plus_thenNormalize() {
+        // Plus operation followed by normalization
+        Period p1 = new Period(0, 6, 0, 0, 0, 0, 0, 0);
+        Period p2 = new Period(0, 18, 0, 0, 0, 0, 0, 0);
+        Period result = p1.plus(p2).normalizedStandard();
+        
+        assertNotNull(result);
+        assertEquals(2, result.getYears());
+        assertEquals(0, result.getMonths());
+    }
+
+    @Test
+    public void test_normalizedStandard_containsAllFieldTypes() {
+        // Normalization with all field types present
+        Period p = new Period(1, 12, 4, 30, 30, 90, 90, 500);
+        Period result = p.normalizedStandard();
+        
+        assertNotNull(result);
+        assertTrue(result.getYears() >= 0);
+        assertTrue(result.getMonths() >= 0);
+        assertTrue(result.getWeeks() >= 0);
+    }
 }

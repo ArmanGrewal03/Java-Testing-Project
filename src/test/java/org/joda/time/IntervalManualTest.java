@@ -390,4 +390,192 @@ public class IntervalManualTest {
             assertTrue(interval1.overlaps(interval2));
         }
     }
+
+    // ========================================================================
+    // Additional Tests for Maximum Coverage
+    // ========================================================================
+
+    @Test
+    public void test_contains_millis_justBeforeStart() {
+        // Test millisecond just before start
+        DateTime start = new DateTime(2020, 1, 15, 9, 0, 0, UTC);
+        DateTime end = new DateTime(2020, 1, 15, 10, 0, 0, UTC);
+        Interval interval = new Interval(start, end);
+        
+        long justBefore = start.getMillis() - 1;
+        assertFalse(interval.contains(justBefore));
+    }
+
+    @Test
+    public void test_contains_millis_justAfterEnd() {
+        // Test millisecond just after end
+        DateTime start = new DateTime(2020, 1, 15, 9, 0, 0, UTC);
+        DateTime end = new DateTime(2020, 1, 15, 10, 0, 0, UTC);
+        Interval interval = new Interval(start, end);
+        
+        long justAfter = end.getMillis() + 1;
+        assertFalse(interval.contains(justAfter));
+    }
+
+    @Test
+    public void test_contains_longMinValue() {
+        // Test with Long.MIN_VALUE
+        DateTime start = new DateTime(2020, 1, 15, 9, 0, 0, UTC);
+        DateTime end = new DateTime(2020, 1, 15, 10, 0, 0, UTC);
+        Interval interval = new Interval(start, end);
+        
+        assertFalse(interval.contains(Long.MIN_VALUE));
+    }
+
+    @Test
+    public void test_contains_longMaxValue() {
+        // Test with Long.MAX_VALUE (way in future)
+        DateTime start = new DateTime(2020, 1, 15, 9, 0, 0, UTC);
+        DateTime end = new DateTime(2020, 1, 15, 10, 0, 0, UTC);
+        Interval interval = new Interval(start, end);
+        
+        assertFalse(interval.contains(Long.MAX_VALUE));
+    }
+
+    @Test
+    public void test_overlaps_sameStart() {
+        // Test intervals with same start time
+        DateTime start = new DateTime(2020, 1, 15, 9, 0, 0, UTC);
+        DateTime end1 = new DateTime(2020, 1, 15, 10, 0, 0, UTC);
+        DateTime end2 = new DateTime(2020, 1, 15, 11, 0, 0, UTC);
+        
+        Interval interval1 = new Interval(start, end1);
+        Interval interval2 = new Interval(start, end2);
+        
+        assertTrue(interval1.overlaps(interval2));
+    }
+
+    @Test
+    public void test_overlaps_sameEnd() {
+        // Test intervals with same end time
+        DateTime start1 = new DateTime(2020, 1, 15, 8, 0, 0, UTC);
+        DateTime start2 = new DateTime(2020, 1, 15, 9, 0, 0, UTC);
+        DateTime end = new DateTime(2020, 1, 15, 10, 0, 0, UTC);
+        
+        Interval interval1 = new Interval(start1, end);
+        Interval interval2 = new Interval(start2, end);
+        
+        assertTrue(interval1.overlaps(interval2));
+    }
+
+    @Test
+    public void test_overlaps_singlePointInterval() {
+        // When both intervals are at a single point (zero length)
+        DateTime point = new DateTime(2020, 1, 15, 9, 0, 0, UTC);
+        
+        Interval zeroLength1 = new Interval(point, point);
+        Interval zeroLength2 = new Interval(point, point);
+        
+        assertFalse(zeroLength1.overlaps(zeroLength2));
+    }
+
+    @Test
+    public void test_contains_multipleInstants() {
+        // Test multiple instants in single interval
+        DateTime start = new DateTime(2020, 1, 15, 9, 0, 0, UTC);
+        DateTime end = new DateTime(2020, 1, 15, 10, 0, 0, UTC);
+        Interval interval = new Interval(start, end);
+        
+        DateTime t1 = new DateTime(2020, 1, 15, 9, 15, 0, UTC);
+        DateTime t2 = new DateTime(2020, 1, 15, 9, 30, 0, UTC);
+        DateTime t3 = new DateTime(2020, 1, 15, 9, 45, 0, UTC);
+        
+        assertTrue(interval.contains(t1.getMillis()));
+        assertTrue(interval.contains(t2.getMillis()));
+        assertTrue(interval.contains(t3.getMillis()));
+    }
+
+    @Test
+    public void test_overlaps_secondIntervalStartsBeforeFirstEnds() {
+        // Second interval starts before first ends
+        DateTime start1 = new DateTime(2020, 1, 15, 9, 0, 0, UTC);
+        DateTime end1 = new DateTime(2020, 1, 15, 10, 30, 0, UTC);
+        Interval interval1 = new Interval(start1, end1);
+        
+        DateTime start2 = new DateTime(2020, 1, 15, 10, 0, 0, UTC);
+        DateTime end2 = new DateTime(2020, 1, 15, 11, 0, 0, UTC);
+        Interval interval2 = new Interval(start2, end2);
+        
+        assertTrue(interval1.overlaps(interval2));
+    }
+
+    @Test
+    public void test_overlaps_verySmallGap() {
+        // Test intervals with 1ms gap
+        DateTime start1 = new DateTime(2020, 1, 15, 9, 0, 0, UTC);
+        DateTime end1 = new DateTime(2020, 1, 15, 10, 0, 0, UTC);
+        Interval interval1 = new Interval(start1, end1);
+        
+        DateTime start2 = new DateTime(2020, 1, 15, 10, 0, 0, 1, UTC);
+        DateTime end2 = new DateTime(2020, 1, 15, 11, 0, 0, UTC);
+        Interval interval2 = new Interval(start2, end2);
+        
+        assertFalse(interval1.overlaps(interval2));
+    }
+
+    @Test
+    public void test_contains_immutability() {
+        // Verify interval not modified by contains call
+        DateTime start = new DateTime(2020, 1, 15, 9, 0, 0, UTC);
+        DateTime end = new DateTime(2020, 1, 15, 10, 0, 0, UTC);
+        Interval interval = new Interval(start, end);
+        
+        long originalStart = interval.getStart().getMillis();
+        long originalEnd = interval.getEnd().getMillis();
+        
+        interval.contains(start.getMillis() + 1000);
+        
+        assertEquals(originalStart, interval.getStart().getMillis());
+        assertEquals(originalEnd, interval.getEnd().getMillis());
+    }
+
+    @Test
+    public void test_overlaps_immutability() {
+        // Verify intervals not modified by overlaps call
+        DateTime start1 = new DateTime(2020, 1, 15, 9, 0, 0, UTC);
+        DateTime end1 = new DateTime(2020, 1, 15, 10, 0, 0, UTC);
+        Interval interval1 = new Interval(start1, end1);
+        
+        DateTime start2 = new DateTime(2020, 1, 15, 10, 30, 0, UTC);
+        DateTime end2 = new DateTime(2020, 1, 15, 11, 0, 0, UTC);
+        Interval interval2 = new Interval(start2, end2);
+        
+        long originalStart1 = interval1.getStart().getMillis();
+        long originalEnd1 = interval1.getEnd().getMillis();
+        
+        interval1.overlaps(interval2);
+        
+        assertEquals(originalStart1, interval1.getStart().getMillis());
+        assertEquals(originalEnd1, interval1.getEnd().getMillis());
+    }
+
+    @Test
+    public void test_contains_boundary_millisecond() {
+        // Test exact boundary at millisecond precision
+        DateTime start = new DateTime(2020, 1, 15, 9, 0, 0, 500, UTC);
+        DateTime end = new DateTime(2020, 1, 15, 10, 0, 0, UTC);
+        Interval interval = new Interval(start, end);
+        
+        assertTrue(interval.contains(start.getMillis()));
+        assertFalse(interval.contains(start.getMillis() - 1));
+    }
+
+    @Test
+    public void test_overlaps_crossDayBoundary() {
+        // Test intervals crossing day boundary
+        DateTime start1 = new DateTime(2020, 1, 15, 23, 0, 0, UTC);
+        DateTime end1 = new DateTime(2020, 1, 16, 1, 0, 0, UTC);
+        Interval interval1 = new Interval(start1, end1);
+        
+        DateTime start2 = new DateTime(2020, 1, 16, 0, 0, 0, UTC);
+        DateTime end2 = new DateTime(2020, 1, 16, 2, 0, 0, UTC);
+        Interval interval2 = new Interval(start2, end2);
+        
+        assertTrue(interval1.overlaps(interval2));
+    }
 }

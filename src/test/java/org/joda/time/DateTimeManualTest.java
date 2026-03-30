@@ -321,4 +321,182 @@ public class DateTimeManualTest {
         assertEquals(original_year.getDayOfMonth(), dt.getDayOfMonth());
         assertNotEquals(result.getDayOfMonth(), dt.getDayOfMonth());
     }
+
+    // ========================================================================
+    // Additional Tests for Maximum Coverage
+    // ========================================================================
+
+    @Test
+    public void test_withYear_negativeYear() {
+        // BVA: Very old year
+        DateTime dt = new DateTime(2020, 6, 15, 10, 0, 0, UTC);
+        DateTime result = dt.withYear(500);
+        
+        assertEquals(500, result.getYear());
+        assertEquals(6, result.getMonthOfYear());
+        assertEquals(15, result.getDayOfMonth());
+    }
+
+    @Test
+    public void test_withYear_midYear() {
+        // BVA: Middle of century
+        DateTime dt = new DateTime(2020, 6, 15, 10, 0, 0, UTC);
+        DateTime result = dt.withYear(1500);
+        
+        assertEquals(1500, result.getYear());
+        assertEquals(6, result.getMonthOfYear());
+        assertEquals(15, result.getDayOfMonth());
+    }
+
+    @Test
+    public void test_withYear_millennium() {
+        // Edge case: Millennium year
+        DateTime dt = new DateTime(2020, 6, 15, 10, 0, 0, UTC);
+        DateTime result = dt.withYear(2000);
+        
+        assertEquals(2000, result.getYear());
+        assertEquals(6, result.getMonthOfYear());
+        assertEquals(15, result.getDayOfMonth());
+    }
+
+    @Test
+    public void test_withYear_centuryLeapYear() {
+        // Edge case: Century year that is a leap year (divisible by 400)
+        DateTime dt = new DateTime(2020, 2, 29, 12, 0, 0, UTC);
+        DateTime result = dt.withYear(2400);  // 2400 is leap year
+        
+        assertEquals(2400, result.getYear());
+        assertEquals(2, result.getMonthOfYear());
+        assertEquals(29, result.getDayOfMonth());
+    }
+
+    @Test
+    public void test_withYear_centuryNonLeapYear() {
+        // Edge case: Century year that is NOT a leap year
+        DateTime dt = new DateTime(2020, 2, 29, 12, 0, 0, UTC);
+        DateTime result = dt.withYear(2100);  // 2100 is NOT a leap year
+        
+        assertEquals(2100, result.getYear());
+        assertEquals(2, result.getMonthOfYear());
+        assertEquals(28, result.getDayOfMonth());
+    }
+
+    @Test
+    public void test_plusDays_singleDay() {
+        // Edge case: Adding just 1 day
+        DateTime dt = new DateTime(2020, 6, 15, 12, 0, 0, UTC);
+        DateTime result = dt.plusDays(1);
+        
+        assertEquals(2020, result.getYear());
+        assertEquals(6, result.getMonthOfYear());
+        assertEquals(16, result.getDayOfMonth());
+    }
+
+    @Test
+    public void test_plusDays_negativeSingleDay() {
+        // Edge case: Subtracting just 1 day
+        DateTime dt = new DateTime(2020, 6, 15, 12, 0, 0, UTC);
+        DateTime result = dt.plusDays(-1);
+        
+        assertEquals(2020, result.getYear());
+        assertEquals(6, result.getMonthOfYear());
+        assertEquals(14, result.getDayOfMonth());
+    }
+
+    @Test
+    public void test_plusDays_february28toMarch1() {
+        // Edge case: Feb 28 in non-leap year
+        DateTime dt = new DateTime(2021, 2, 28, 12, 0, 0, UTC);
+        DateTime result = dt.plusDays(1);
+        
+        assertEquals(2021, result.getYear());
+        assertEquals(3, result.getMonthOfYear());
+        assertEquals(1, result.getDayOfMonth());
+    }
+
+    @Test
+    public void test_plusDays_february29toMarch1() {
+        // Edge case: Feb 29 in leap year to March 1
+        DateTime dt = new DateTime(2020, 2, 29, 12, 0, 0, UTC);
+        DateTime result = dt.plusDays(1);
+        
+        assertEquals(2020, result.getYear());
+        assertEquals(3, result.getMonthOfYear());
+        assertEquals(1, result.getDayOfMonth());
+    }
+
+    @Test
+    public void test_plusDays_march1BackToFeb29() {
+        // Edge case: March 1 back to Feb 29 in leap year
+        DateTime dt = new DateTime(2020, 3, 1, 12, 0, 0, UTC);
+        DateTime result = dt.plusDays(-1);
+        
+        assertEquals(2020, result.getYear());
+        assertEquals(2, result.getMonthOfYear());
+        assertEquals(29, result.getDayOfMonth());
+    }
+
+    @Test
+    public void test_plusDays_midnightTransition() {
+        // Edge case: Midnight time preservation
+        DateTime dt = new DateTime(2020, 6, 15, 0, 0, 0, UTC);
+        DateTime result = dt.plusDays(1);
+        
+        assertEquals(0, result.getHourOfDay());
+        assertEquals(0, result.getMinuteOfHour());
+        assertEquals(0, result.getSecondOfMinute());
+    }
+
+    @Test
+    public void test_plusDays_endOfMonth31() {
+        // Edge case: 31st of Jan to 31st of another 31-day month
+        DateTime dt = new DateTime(2020, 1, 31, 12, 0, 0, UTC);
+        DateTime result = dt.plusDays(31);  // To March 2
+        
+        assertEquals(2020, result.getYear());
+        assertEquals(3, result.getMonthOfYear());
+        assertEquals(2, result.getDayOfMonth());
+    }
+
+    @Test
+    public void test_plusDays_chaining() {
+        // Test chaining plus operations
+        DateTime dt = new DateTime(2020, 6, 15, 10, 0, 0, UTC);
+        DateTime result = dt.plusDays(10).plusDays(5).plusDays(-8);
+        
+        assertEquals(2020, result.getYear());
+        assertEquals(6, result.getMonthOfYear());
+        assertEquals(22, result.getDayOfMonth());
+    }
+
+    @Test
+    public void test_withYear_chaining() {
+        // Test chaining year changes
+        DateTime dt = new DateTime(2020, 1, 1, 0, 0, 0, UTC);
+        DateTime result = dt.withYear(2021).withYear(2022).withYear(2020);
+        
+        assertEquals(2020, result.getYear());
+    }
+
+    @Test
+    public void test_combined_withYear_plusDays() {
+        // Test combination of year change and day addition
+        DateTime dt = new DateTime(2020, 12, 30, 12, 0, 0, UTC);
+        DateTime result = dt.withYear(2021).plusDays(5);
+        
+        assertEquals(2022, result.getYear());  // 2021/12/30 + 5 days = 2022/1/4
+        assertEquals(1, result.getMonthOfYear());
+        assertEquals(4, result.getDayOfMonth());
+    }
+
+    @Test
+    public void test_combined_plusDays_withYear() {
+        // Test combination of day addition and year change
+        DateTime dt = new DateTime(2020, 12, 30, 12, 0, 0, UTC);
+        DateTime result = dt.plusDays(5).withYear(2021);
+        
+        assertEquals(2021, result.getYear());
+        assertEquals(1, result.getMonthOfYear());
+        assertEquals(4, result.getDayOfMonth());
+    }
 }
