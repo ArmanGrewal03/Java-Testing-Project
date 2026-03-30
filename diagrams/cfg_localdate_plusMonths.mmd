@@ -1,0 +1,7 @@
+flowchart TD
+    A([Start plusMonths(months)]) --> B{months == 0?}
+    B -- Yes --> C[return this]
+    B -- No --> D[instant = chronology.months.add(getLocalMillis, months)]
+    D --> E[return withLocalMillis(instant)]
+    C --> F([End])
+    E --> F

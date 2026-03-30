@@ -1,0 +1,9 @@
+flowchart TD
+    A([Entry]) --> B[Def months (parameter)]
+    B --> C{P-use: months == 0}
+    C -- True --> D[Use this in return this]
+    C -- False --> E[C-use: months in add(getLocalMillis, months)]
+    E --> F[Def instant]
+    F --> G[C-use: instant in withLocalMillis(instant)]
+    G --> H([Exit])
+    D --> H
