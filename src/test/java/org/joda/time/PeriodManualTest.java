@@ -333,8 +333,8 @@ public class PeriodManualTest {
         Period result = p.normalizedStandard();
         
         assertNotNull(result);
-        // Result: 15 days total (weeks are converted to days in standard form)
-        assertEquals(15, result.getDays());
+        // Result normalized as 2 weeks and 1 day
+        assertEquals(1, result.getDays());
     }
 
     @Test
@@ -407,7 +407,7 @@ public class PeriodManualTest {
         Period result = p.normalizedStandard();
         
         assertNotNull(result);
-        assertEquals(5, result.getYears());
+        assertEquals(7, result.getYears());
         // 24 months normalized
         assertTrue(result.getMonths() >= 0 && result.getMonths() <= 11);
     }

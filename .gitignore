@@ -1,0 +1,8 @@
+# Maven build output
+/target/
+
+.vscode/
+
+# OS/editor local files
+.DS_Store
+.metadata/

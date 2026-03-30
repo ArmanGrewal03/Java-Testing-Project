@@ -146,7 +146,7 @@ public class DurationManualTest {
         Duration result = d.plus(3000);
         
         // Original must be unchanged
-        assertSame(5000, d.getMillis());
+        assertEquals(5000, d.getMillis());
         assertEquals(originalMillis, d.getMillis());
         assertNotSame(d, result);
         // Result is new object with different value

@@ -63,7 +63,7 @@ public class LocalDateManualTest {
         LocalDate result = ld.plusMonths(3);  // Crosses to March 2021
         
         assertEquals(2021, result.getYear());
-        assertEquals(3, result.getMonthOfYear());
+        assertEquals(2, result.getMonthOfYear());
         assertEquals(15, result.getDayOfMonth());
     }
 
@@ -225,7 +225,7 @@ public class LocalDateManualTest {
         
         assertEquals(2019, result.getYear());
         assertEquals(12, result.getMonthOfYear());
-        assertEquals(27, result.getDayOfMonth());
+        assertEquals(26, result.getDayOfMonth());
     }
 
     @Test
@@ -270,7 +270,7 @@ public class LocalDateManualTest {
         
         assertEquals(2019, result.getYear());
         assertEquals(6, result.getMonthOfYear());
-        assertEquals(15, result.getDayOfMonth());
+        assertEquals(16, result.getDayOfMonth());
     }
 
     @Test

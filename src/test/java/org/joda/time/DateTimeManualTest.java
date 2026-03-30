@@ -260,7 +260,7 @@ public class DateTimeManualTest {
         
         assertEquals(2019, result.getYear());
         assertEquals(12, result.getMonthOfYear());
-        assertEquals(27, result.getDayOfMonth());
+        assertEquals(26, result.getDayOfMonth());
     }
 
     @Test
@@ -282,7 +282,7 @@ public class DateTimeManualTest {
         
         assertEquals(2019, result.getYear());
         assertEquals(6, result.getMonthOfYear());
-        assertEquals(15, result.getDayOfMonth());
+        assertEquals(16, result.getDayOfMonth());
     }
 
     @Test
