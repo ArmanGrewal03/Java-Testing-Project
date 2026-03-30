@@ -317,4 +317,42 @@ public class LocalDateManualTest {
         assertEquals(original_day.getDayOfMonth(), ld.getDayOfMonth());
         assertNotEquals(result.getDayOfMonth(), ld.getDayOfMonth());
     }
+
+    // ========================================================================
+    // LocalDate.equals(Object) Tests - Identity & Null Check
+    // ========================================================================
+    // Targets: Negated Conditional mutation on identity check
+    // Purpose: Kill mutation where if (this == partial) becomes if (this != partial)
+    // ========================================================================
+
+    @Test
+    public void test_equals_sameObjectReference() {
+        // Identity check: same object should equal itself
+        LocalDate ld = new LocalDate(2020, 6, 15);
+        assertTrue(ld.equals(ld));
+    }
+
+    @Test
+    public void test_equals_nullObject() {
+        // Identity check with null: should NOT equal null
+        // Detects NEGATE_CONDITIONALS mutation: if (this != partial) returning true on null
+        LocalDate ld = new LocalDate(2020, 6, 15);
+        assertFalse(ld.equals(null));
+    }
+
+    @Test
+    public void test_equals_differentLocalDate() {
+        // Different LocalDate objects with same date should equal
+        LocalDate ld1 = new LocalDate(2020, 6, 15);
+        LocalDate ld2 = new LocalDate(2020, 6, 15);
+        assertTrue(ld1.equals(ld2));
+    }
+
+    @Test
+    public void test_equals_differentDate() {
+        // Different LocalDate values should not equal
+        LocalDate ld1 = new LocalDate(2020, 6, 15);
+        LocalDate ld2 = new LocalDate(2020, 6, 16);
+        assertFalse(ld1.equals(ld2));
+    }
 }
