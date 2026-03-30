@@ -1,0 +1,1138 @@
+COE891 FINAL PROJECT – DETAILED TESTING AND IMPLEMENTATION PLAN
+Project Under Test: Joda-Time 2.14.0
+Group: 2
+Primary Focus: Section 5 Project Tasks and Deliverables
+Date: 2026-03-30
+
+=====================================================================
+1. PURPOSE OF THIS PLAN
+=====================================================================
+This document is a detailed overall execution plan for completing the COE891 final project for the selected open-source Java application, Joda-Time. The goal of this plan is not just to restate the course test plan, but to provide a practical, step-by-step implementation roadmap focused on the actual testing work, artifacts, evidence, and deliverables required to complete the project successfully.
+
+This plan is based on:
+- the official COE891 project description PDF,
+- the group’s submitted Joda-Time Level Test Plan PDF,
+- the selected classes and methods already approved in the test plan,
+- the specific tools and techniques required by the course.
+
+This plan focuses especially on Section 5 of the project handout: Project Tasks and Deliverables. That means the emphasis is on:
+- what testing must actually be implemented,
+- how the work should be organized,
+- which classes and methods will be tested,
+- which abstractions/approaches will be used,
+- what evidence must be collected,
+- what files, diagrams, coverage reports, mutation reports, and final writeups must be produced,
+- how to complete the LLM-assisted testing component in a course-compliant way,
+- and how to turn all of this into the final report and ZIP submission.
+
+
+=====================================================================
+2. PROJECT REQUIREMENTS THAT DRIVE THIS PLAN
+=====================================================================
+The official project description imposes the following major requirements that directly affect implementation:
+
+2.1 Core Project Requirements
+- The selected project must be an open-source Java application/library of meaningful size.
+- The group must test the selected project using course-based testing methods.
+- The final report must contain the finalized test plan, findings, results, critical analysis, barriers, and tool-based evidence.
+
+2.2 Section 5 Requirements
+According to the project description, the group must apply each required testing abstraction/approach to selected methods and implement actual testing programs. The course requires using 4 different testing abstractions out of the available 5. Since the group test plan already commits to the following four, this project implementation will use:
+- Input Space Partitioning (ISP) with Boundary Value Analysis (BVA)
+- Graph-Based Testing (CFG and DFG)
+- Logic-Based Testing
+- Mutation Testing
+
+Formal methods are not included in the group plan and therefore are out of scope for this implementation.
+
+2.3 LLM-Assisted Testing Requirement
+In addition to regular testing, the group must complete an LLM-assisted testing experiment using ChatUniTest and a supported local LLM. This must include:
+- selecting 3 to 5 Java methods,
+- manually designing tests first,
+- generating LLM-assisted tests through ChatUniTest,
+- comparing manual vs LLM-generated tests using structural coverage and mutation evaluation,
+- documenting the process, commands, and limitations,
+- and including the full LLM interaction history in the appendix as required.
+
+2.4 Submission Requirements
+The final project deliverables must include:
+- Final written report as one PDF
+- ZIP file containing project code, tests, graphs, screenshots, coverage, mutation evidence, and supporting artifacts
+- Report examples should be selective, but the implementation work must still be done comprehensively
+- The final report must include critical reflection, barriers, test justification, tool justification, and LLM-assisted testing analysis
+
+
+=====================================================================
+3. SYSTEM UNDER TEST (SUT)
+=====================================================================
+Project: Joda-Time
+Version: 2.14.0
+Language: Java
+Build Tool: Maven
+Repository: https://github.com/JodaOrg/joda-time
+
+Why Joda-Time is suitable:
+- It is large enough for the project scope.
+- It contains approximately 166 classes according to the test plan.
+- It has well-defined, widely used date/time methods with meaningful edge cases.
+- It includes arithmetic behavior, boundary-sensitive logic, exception paths, immutability behavior, and interval logic.
+- It is testable at the unit level with JUnit and Maven.
+
+Important testing characteristics of Joda-Time that must shape implementation:
+- Many classes are immutable.
+- Date/time logic is highly sensitive to boundaries.
+- Leap years, month-end rollover, and interval boundary handling are common fault sources.
+- Arithmetic operations can overflow or behave unexpectedly on special values.
+- Null handling and exception behavior are important in some methods.
+- Time-zone dependence must be controlled to ensure deterministic tests.
+
+
+=====================================================================
+4. TEST SCOPE TO IMPLEMENT
+=====================================================================
+The group’s test plan selects 10 methods in 5 classes. These are the methods that the implementation must target.
+
+4.1 Selected Classes and Methods
+
+Class 1: DateTime
+- TI-01: withYear(int)
+- TI-02: plusDays(int)
+
+Class 2: LocalDate
+- TI-03: plusMonths(int)
+- TI-04: minusDays(int)
+
+Class 3: Duration
+- TI-05: plus(long)
+- TI-06: dividedBy(long)
+
+Class 4: Period
+- TI-07: plus(ReadablePeriod)
+- TI-08: normalizedStandard()
+
+Class 5: Interval
+- TI-09: contains(long)
+- TI-10: overlaps(ReadableInterval)
+
+4.2 In Scope
+The actual implementation work will include:
+- manual analysis of each selected method,
+- partition definition and boundary identification,
+- concrete unit tests in JUnit,
+- CFG analysis for selected branch-heavy methods,
+- DFG analysis for methods with meaningful definitions and uses,
+- logic analysis for predicate-heavy methods,
+- mutation testing using PIT where possible,
+- manual mutant experiments where needed,
+- LLM-assisted test generation for 3 to 5 methods from this set,
+- comparison of manual vs LLM-generated tests,
+- report-ready screenshots, tables, diagrams, and evidence.
+
+4.3 Out of Scope
+The implementation will not focus on:
+- formatting package testing,
+- advanced chronology internals,
+- time-zone infrastructure implementation testing,
+- performance testing,
+- security testing,
+- deprecated APIs,
+- formal verification methods.
+
+
+=====================================================================
+5. OVERALL IMPLEMENTATION STRATEGY
+=====================================================================
+The project should be implemented in layers, not all at once. The order matters.
+
+PHASE ORDER:
+1. Environment setup and repository preparation
+2. Source code reading and method-under-test analysis
+3. Manual test design for all 10 methods
+4. JUnit implementation of manual tests
+5. CFG / DFG / logic artifact creation
+6. Coverage execution and refinement
+7. Mutation testing execution and refinement
+8. LLM-assisted testing experiment
+9. Comparative analysis and final evidence collection
+10. Final report assembly and ZIP packaging
+
+This ordering is important because:
+- coverage and mutation testing only make sense after stable manual tests exist,
+- LLM-generated tests must be compared against a manual baseline,
+- diagrams and logic analysis should reflect the actual implemented tests,
+- report writing should happen after evidence is collected, not before.
+
+
+=====================================================================
+6. DETAILED TASKS FOR SECTION 5 PROJECT TASKS AND DELIVERABLES
+=====================================================================
+This section is the core of the plan.
+
+---------------------------------------------------------------------
+6.1 TASK GROUP A – PREPARE TESTING ENVIRONMENT
+---------------------------------------------------------------------
+Objective:
+Create a stable, reproducible Java/Maven testing environment for Joda-Time and the required tools.
+
+Actions:
+1. Clone the Joda-Time repository.
+2. Check out the selected version/tag (2.14.0 if not already fixed in the repository setup).
+3. Build the project with Maven and confirm it compiles cleanly.
+4. Run any existing tests to confirm the baseline project state.
+5. Create a working branch for group testing changes.
+6. Confirm that src/test/java can hold added manual tests without breaking the project.
+7. Add or verify dependencies/plugins for:
+   - JUnit (match project-compatible version)
+   - JaCoCo
+   - PIT
+   - ChatUniTest (later stage)
+8. Ensure Java version compatibility for all tools.
+9. Fix deterministic environment issues:
+   - use UTC where relevant,
+   - document Java version,
+   - document Maven version,
+   - document OS/IDE/tool versions.
+
+Deliverables from this task:
+- working local project build,
+- documented environment setup notes,
+- Maven build commands,
+- final list of versions/tools used.
+
+Evidence to save:
+- screenshot of successful mvn clean install,
+- screenshot of project structure,
+- final pom.xml or dependency configuration snapshot.
+
+---------------------------------------------------------------------
+6.2 TASK GROUP B – METHOD ANALYSIS AND TEST DESIGN BASELINE
+---------------------------------------------------------------------
+Objective:
+Understand each selected method deeply enough to design valid manual tests before writing code.
+
+For EACH of the 10 selected methods, do the following:
+1. Read the actual source code.
+2. Identify:
+   - parameters,
+   - return value,
+   - preconditions,
+   - exception paths,
+   - branch points,
+   - internal computations,
+   - immutability expectations,
+   - boundary-sensitive behavior.
+3. Determine which testing abstractions apply most strongly to the method.
+4. Record method-specific notes.
+5. Decide whether the method is also a candidate for the LLM experiment.
+
+Required output per method:
+- method summary,
+- testability notes,
+- expected normal behavior,
+- expected edge behavior,
+- expected invalid-input behavior,
+- expected object-state behavior,
+- notes on whether branch/logic/data-flow analysis is meaningful.
+
+Recommended working format:
+Create a method analysis worksheet/table with columns:
+- ID
+- Class
+- Method
+- Inputs
+- Output
+- Exceptions
+- Key boundaries
+- Relevant predicates
+- Relevant CFG branches
+- Relevant DFG defs/uses
+- Mutation opportunities
+- LLM candidate? yes/no
+
+Deliverables from this task:
+- 10 completed method analysis records,
+- selected subset for detailed CFG/DFG/logic reporting,
+- selected subset for LLM-assisted testing.
+
+---------------------------------------------------------------------
+6.3 TASK GROUP C – INPUT SPACE PARTITIONING (ISP) + BVA DESIGN
+---------------------------------------------------------------------
+Objective:
+Define high-quality manual tests using input space partitioning and boundary value analysis.
+
+This task applies to all 10 methods.
+
+For EACH method:
+1. Identify input parameters and relevant object state.
+2. Partition inputs into equivalence classes.
+3. Mark valid partitions and invalid/error partitions.
+4. Identify boundaries for each partition.
+5. Select representative values.
+6. Convert the chosen values into concrete JUnit-ready test cases.
+7. Note expected outputs or exceptions.
+
+Method-specific design reminders:
+
+TI-01 DateTime.withYear(int)
+Potential partitions:
+- ordinary valid year
+- leap year preserving valid date
+- year causing invalid date transition
+- extreme values
+- negative years / year zero if meaningful
+Check:
+- returned year updated correctly
+- original object unchanged
+- exception behavior if applicable
+
+TI-02 DateTime.plusDays(int)
+Potential partitions:
+- positive days
+- zero days
+- negative days
+- month boundary crossing
+- year boundary crossing
+- leap year crossing
+
+TI-03 LocalDate.plusMonths(int)
+Potential partitions:
+- positive months
+- zero months
+- negative months
+- month-end clamping cases
+- leap-year cases
+- year rollover cases
+
+TI-04 LocalDate.minusDays(int)
+Potential partitions:
+- positive subtraction
+- zero subtraction
+- negative subtraction (effectively add)
+- month/year boundary crossings
+
+TI-05 Duration.plus(long)
+Potential partitions:
+- positive addition
+- zero addition
+- negative addition
+- large addition
+- overflow-sensitive values
+
+TI-06 Duration.dividedBy(long)
+Potential partitions:
+- divisor = 1
+- divisor = -1
+- divisor = 0 (exception)
+- positive divisor > 1
+- negative divisor < -1
+- large magnitude divisor
+
+TI-07 Period.plus(ReadablePeriod)
+Potential partitions:
+- normal non-null period
+- null period if supported/ignored
+- zero period
+- mixed fields
+- large field combinations
+
+TI-08 Period.normalizedStandard()
+Potential partitions:
+- already normalized period
+- non-normalized period
+- zero-valued period
+- large value period
+- cases where normalization changes field structure
+
+TI-09 Interval.contains(long)
+Potential partitions:
+- instant before start
+- instant equal to start
+- instant inside interval
+- instant equal to end
+- instant after end
+- zero-length interval case
+
+TI-10 Interval.overlaps(ReadableInterval)
+Potential partitions:
+- overlapping intervals
+- touching but not overlapping intervals
+- disjoint intervals
+- one interval inside another
+- equal intervals
+- null interval behavior if relevant
+
+Deliverables from this task:
+- partition tables for all 10 methods,
+- boundary tables for all 10 methods,
+- concrete test case list for all 10 methods.
+
+Evidence to save:
+- partition tables,
+- boundary test design sheets,
+- selected examples for final report.
+
+---------------------------------------------------------------------
+6.4 TASK GROUP D – IMPLEMENT MANUAL JUNIT TESTS
+---------------------------------------------------------------------
+Objective:
+Turn the manual ISP/BVA and other design outputs into executable JUnit tests.
+
+Implementation expectations:
+- Use clean, readable test classes.
+- Group tests by target class and method.
+- Use descriptive test method names.
+- Keep tests deterministic.
+- Control dates/time zones explicitly where required.
+- Verify immutability where relevant.
+- Verify exceptions explicitly.
+
+Recommended file structure:
+src/test/java/.../DateTimeManualTest.java
+src/test/java/.../LocalDateManualTest.java
+src/test/java/.../DurationManualTest.java
+src/test/java/.../PeriodManualTest.java
+src/test/java/.../IntervalManualTest.java
+
+For each test class:
+- organize by method under test,
+- include comments or section markers indicating test technique,
+- optionally separate ISP/BVA, graph, logic, mutation-oriented tests.
+
+Testing checks to include where relevant:
+- assert exact returned value/state,
+- assert original object unchanged for immutable classes,
+- assert exception type and message if appropriate,
+- assert boundary inclusion/exclusion behavior,
+- assert logically distinct outcomes.
+
+Minimum implementation goal:
+- every selected method must have multiple meaningful manual tests,
+- enough tests to support coverage and mutation analysis,
+- enough tests to support final report discussion.
+
+Deliverables from this task:
+- complete manual JUnit test suite for the 10 selected methods,
+- passing build with tests.
+
+Evidence to save:
+- screenshots of test code,
+- screenshots of successful JUnit runs,
+- console output from mvn test.
+
+---------------------------------------------------------------------
+6.5 TASK GROUP E – GRAPH-BASED TESTING (CFG + DFG)
+---------------------------------------------------------------------
+Objective:
+Apply structural testing analysis to selected methods and ensure tests satisfy meaningful control-flow and data-flow requirements.
+
+Important practical note:
+Not every one of the 10 methods requires equally detailed graph artifacts in the report, but the implementation and analysis should still be done broadly enough to justify the project work. For the report, select the strongest examples.
+
+Recommended stronger CFG/DFG candidates:
+- TI-06 Duration.dividedBy(long)
+- TI-09 Interval.contains(long)
+- TI-10 Interval.overlaps(ReadableInterval)
+- TI-03 LocalDate.plusMonths(int)
+- TI-07 Period.plus(ReadablePeriod)
+
+CFG task steps:
+1. Read source for chosen methods.
+2. Identify nodes and decisions.
+3. Draw CFGs.
+4. Determine coverage targets:
+   - node coverage,
+   - edge/branch coverage,
+   - important paths if feasible.
+5. Map existing manual test cases to CFG coverage.
+6. Add missing tests if any branches are uncovered.
+
+DFG task steps:
+1. Identify variable definitions and uses.
+2. Track computational uses and predicate uses.
+3. Build DFG or def-use relation tables.
+4. Determine which def-use pairs are important.
+5. Map tests to def-use coverage.
+6. Add tests if key def-use pairs are missed.
+
+Expected artifacts:
+- CFG diagrams,
+- DFG diagrams or def-use tables,
+- test requirement tables,
+- mapping from test cases to graph coverage requirements.
+
+Deliverables from this task:
+- structural analysis artifacts for selected methods,
+- tests refined to satisfy branch/data-flow goals,
+- report-ready diagrams.
+
+Evidence to save:
+- diagrams as PNG/PDF,
+- requirement tables,
+- notes showing which test kills which path/gap.
+
+---------------------------------------------------------------------
+6.6 TASK GROUP F – LOGIC-BASED TESTING
+---------------------------------------------------------------------
+Objective:
+Analyze predicate-heavy methods and design tests that exercise logical clauses meaningfully.
+
+Best candidates:
+- TI-09 Interval.contains(long)
+- TI-10 Interval.overlaps(ReadableInterval)
+- TI-06 Duration.dividedBy(long)
+
+Task steps:
+1. Extract predicates from method source.
+2. Rewrite compound conditions into explicit Boolean form.
+3. Identify clauses.
+4. Determine desired logic coverage criterion for practical analysis.
+5. Select test values so each clause influences outcome where meaningful.
+6. Confirm tests exercise true/false outcomes and important boundary combinations.
+
+Examples:
+TI-09 Interval.contains(long)
+Predicate idea:
+(millisInstant >= start) AND (millisInstant < end)
+Need tests that isolate:
+- start-boundary inclusion,
+- end-boundary exclusion,
+- before start,
+- strictly inside,
+- after end.
+
+TI-10 Interval.overlaps(ReadableInterval)
+Need tests for:
+- true overlap,
+- touching only,
+- fully separate,
+- one interval contained within another,
+- equal intervals if allowed.
+
+TI-06 Duration.dividedBy(long)
+Need tests for:
+- divisor equals one branch,
+- divisor zero exception branch,
+- ordinary division branch.
+
+Deliverables from this task:
+- predicate and clause breakdowns,
+- logic-based test requirement tables,
+- matching implemented test cases,
+- report-ready logic examples.
+
+Evidence to save:
+- predicate tables,
+- clause truth assignments,
+- screenshots or typed tables for final report.
+
+---------------------------------------------------------------------
+6.7 TASK GROUP G – COVERAGE ANALYSIS WITH JACOCO
+---------------------------------------------------------------------
+Objective:
+Measure structural coverage achieved by the manual tests and improve the suite where necessary.
+
+Required metrics:
+- statement/instruction coverage,
+- branch coverage.
+
+Course-aligned targets from the group plan:
+- statement coverage >= 80%
+- branch coverage >= 75%
+
+Task steps:
+1. Configure JaCoCo in Maven.
+2. Run tests with coverage.
+3. Generate HTML reports.
+4. Review method-level coverage for all 10 target methods.
+5. Identify uncovered lines/branches.
+6. Add or refine manual tests to increase coverage.
+7. Re-run until coverage is strong and explainable.
+
+Important rule:
+Do not chase coverage blindly. Any additional tests must still be logically justified and useful.
+
+Deliverables from this task:
+- JaCoCo report,
+- coverage summary table for selected methods/classes,
+- screenshots for final report,
+- explanation of uncovered code where relevant.
+
+Evidence to save:
+- target/site/jacoco output,
+- screenshots of method coverage pages,
+- summary table for report.
+
+---------------------------------------------------------------------
+6.8 TASK GROUP H – MUTATION TESTING
+---------------------------------------------------------------------
+Objective:
+Evaluate the strength of the manual test suite using mutation testing and strengthen tests where mutants survive.
+
+Primary method:
+- Use PIT if environment supports it.
+
+Fallback method:
+- manual mutant experiments if PIT fails or is incompatible.
+
+PIT task steps:
+1. Add/configure pitest-maven plugin.
+2. Set target classes and target tests.
+3. Run mutation coverage on the relevant packages/classes.
+4. Review killed vs survived mutants.
+5. Identify weaknesses in the current tests.
+6. Add tests that specifically target surviving mutant behavior.
+7. Re-run PIT and compare improvement.
+
+Mutation opportunities by method:
+- relational changes in interval boundaries
+- arithmetic replacement in duration or period arithmetic
+- constant replacements
+- exception-check removal in division or invalid-state logic
+- off-by-one boundary changes
+
+If using manual mutants, create specific controlled mutants such as:
+- change >= to > in contains logic,
+- remove divisor zero guard in dividedBy,
+- alter arithmetic constant or return expression,
+- alter month handling logic assumptions.
+
+For each manual mutant, record:
+- mutant ID,
+- original code,
+- mutated code,
+- expected semantic difference,
+- which tests kill it,
+- whether killed by manual tests only or also by LLM tests later.
+
+Deliverables from this task:
+- PIT report or manual mutant experiment table,
+- mutation score summary,
+- analysis of surviving mutants,
+- strengthened tests where appropriate.
+
+Evidence to save:
+- PIT HTML report,
+- screenshots of killed/survived mutants,
+- manual mutant experiment logs if fallback used.
+
+---------------------------------------------------------------------
+6.9 TASK GROUP I – LLM-ASSISTED TESTING COMPONENT
+---------------------------------------------------------------------
+Objective:
+Perform the course-required LLM-assisted testing experiment using ChatUniTest and compare it against the manual baseline.
+
+This task must be handled carefully because the project description has strict requirements.
+
+6.9.1 Select Methods for LLM Experiment
+Choose 3 to 5 methods from the already selected set of 10.
+Recommended strongest candidates:
+- TI-06 Duration.dividedBy(long)
+- TI-09 Interval.contains(long)
+- TI-10 Interval.overlaps(ReadableInterval)
+- TI-03 LocalDate.plusMonths(int)
+- TI-01 DateTime.withYear(int)
+
+Reason for selection:
+- these methods have branches, predicates, and boundary behavior,
+- they are good candidates for comparison between manual and generated tests,
+- they are non-trivial enough to evaluate LLM usefulness.
+
+6.9.2 Manual Baseline Requirement
+Before generating any LLM tests:
+- finalize manual tests for the selected methods,
+- measure their manual-only coverage,
+- measure their manual-only mutation results.
+
+6.9.3 ChatUniTest Setup
+Prepare the environment exactly as required by the course handout:
+- add ChatUniTest starter/plugin in Maven,
+- use a supported local model name,
+- configure local endpoint,
+- ensure JAR exists before generation,
+- run generation from project root.
+
+Suggested documented commands:
+- mvn clean install
+- mvn chatunitest:class -DselectClass=fully.qualified.ClassName
+- mvn chatunitest:copy
+- mvn test
+Optional MUTAP:
+- mvn chatunitest:class -DselectClass=fully.qualified.ClassName -DphaseType=MUTAP
+
+6.9.4 Generated Test Review
+After generation:
+- inspect all generated tests,
+- note compile issues,
+- note incorrect assertions,
+- note unrealistic values,
+- note redundant tests,
+- fix only minor issues needed to run, while documenting the fixes.
+
+6.9.5 Comparison Required
+For each selected class/method set, compare:
+A. manual tests only
+B. LLM-generated tests only
+C. manual + LLM combined
+
+At minimum collect:
+- statement coverage,
+- branch coverage,
+- mutation score for manual only,
+- mutation score for manual + LLM combined,
+- qualitative notes on generated test quality.
+
+6.9.6 Required Qualitative Analysis
+Document:
+- whether the LLM found new corner cases,
+- whether it missed important boundaries,
+- whether it produced wrong assertions,
+- whether it helped improve mutation score,
+- whether it added redundancy,
+- whether it is useful only with human review.
+
+6.9.7 Critical Compliance Requirement
+The official project handout says the full history of LLM interaction must be included in the appendix. Therefore the group must preserve:
+- exact ChatUniTest commands,
+- configuration used,
+- generated outputs,
+- any LLM Q&A/history required by the framework or workflow,
+- notes on corrections made.
+
+Deliverables from this task:
+- configured ChatUniTest setup,
+- generated test files,
+- comparison tables,
+- screenshots and commands,
+- qualitative reflection section content,
+- appendix material showing LLM usage history.
+
+Evidence to save:
+- pom.xml configuration,
+- console output from ChatUniTest runs,
+- generated tests before/after fixes,
+- coverage reports for manual / LLM / combined,
+- mutation comparison outputs,
+- notes of generation issues.
+
+---------------------------------------------------------------------
+6.10 TASK GROUP J – RESULTS CONSOLIDATION AND FINAL DELIVERABLE PREPARATION
+---------------------------------------------------------------------
+Objective:
+Turn all implementation outputs into the exact deliverables required for submission.
+
+This includes preparing both:
+1. final report PDF
+2. supporting ZIP package
+
+What must be consolidated:
+- final test plan content,
+- method selections,
+- test design tables,
+- partition tables,
+- CFG/DFG diagrams,
+- logic predicate analyses,
+- JUnit test implementations,
+- coverage reports,
+- mutation reports,
+- LLM-assisted testing setup/results,
+- screenshots,
+- critical reflections,
+- barriers and resolutions,
+- tool choices and justifications,
+- appendices.
+
+Deliverables from this task:
+- final polished report,
+- all supporting files organized and named clearly,
+- ZIP with no unnecessary dependencies included.
+
+
+=====================================================================
+7. METHOD-BY-METHOD IMPLEMENTATION CHECKLIST
+=====================================================================
+For each of the 10 target methods, complete this checklist.
+
+[ ] Read source code fully
+[ ] Identify normal cases
+[ ] Identify edge cases
+[ ] Identify invalid/exception cases
+[ ] Define ISP partitions
+[ ] Define BVA values
+[ ] Write manual JUnit tests
+[ ] Verify immutability/state behavior if relevant
+[ ] Map tests to CFG/DFG/logic where relevant
+[ ] Review JaCoCo coverage results
+[ ] Review mutation behavior
+[ ] Improve tests if needed
+[ ] Mark whether included in final report examples
+[ ] Mark whether used in LLM experiment
+
+
+=====================================================================
+8. RECOMMENDED DISTRIBUTION OF WORK AMONG TEAM MEMBERS
+=====================================================================
+The test plan already assigns broad roles, but actual implementation should be more concrete.
+
+Suggested practical task split:
+
+Arman – Scheduling / integration tracking / progress coordination
+- Maintain master checklist
+- Track which methods are complete
+- Track deadlines and final assembly milestones
+- Assist with design review and consistency checks
+
+Jasdeep – Tool setup / troubleshooting / build configuration
+- Maven configuration
+- JaCoCo setup
+- PIT setup
+- ChatUniTest setup
+- environment fixes and reproducibility notes
+
+Gurpreet – Test quality control / review / organization
+- Review partition tables and JUnit tests
+- Check naming consistency
+- Check traceability mapping
+- Verify that test cases match abstractions claimed
+
+Alejandro – Final report assembly / evidence organization
+- Collect screenshots and diagrams
+- Build tables for report
+- Draft results and discussion sections
+- Manage appendices and final PDF polishing
+
+Important note:
+Even if each member has a focused responsibility, all members should still contribute to actual test design and implementation because the course expects shared project understanding.
+
+Recommended method ownership split:
+- 2 to 3 methods per member for primary drafting
+- one cross-reviewer per method
+- final group review for all methods before report submission
+
+
+=====================================================================
+9. FILES AND ARTIFACTS THAT SHOULD EXIST BY THE END
+=====================================================================
+The project should end with a clean file structure containing all core evidence.
+
+Recommended artifact list:
+
+A. Code / Test Files
+- manual JUnit test classes
+- any supporting helper classes if needed
+- updated pom.xml
+
+B. Design / Analysis Files
+- ISP tables
+- BVA tables
+- CFG diagrams
+- DFG diagrams
+- logic predicate/clause tables
+- traceability table
+- mutant table
+
+C. Tool Output Files
+- JaCoCo HTML report
+- PIT HTML report or manual mutant results document
+- ChatUniTest output folder
+- copied generated test files
+- command logs / console screenshots
+
+D. Final Report Assets
+- tables summarizing classes/methods
+- screenshots of test runs
+- screenshots of coverage and mutation reports
+- selected code snippets
+- selected LLM-generated test snippets
+- appendix of LLM interaction history
+
+E. Submission Packaging
+- Final report PDF
+- ZIP of project artifacts excluding unnecessary heavy dependencies
+- README or notes file if helpful
+
+
+=====================================================================
+10. COMMANDS AND EXECUTION WORKFLOW TO DOCUMENT
+=====================================================================
+At minimum, document the exact commands actually used.
+
+Recommended baseline commands:
+
+Build / baseline:
+- mvn clean install
+- mvn test
+
+Coverage:
+- mvn test
+- mvn jacoco:report   (or project-specific JaCoCo workflow)
+
+Mutation:
+- mvn org.pitest:pitest-maven:mutationCoverage
+
+ChatUniTest:
+- mvn clean install
+- mvn chatunitest:class -DselectClass=fully.qualified.ClassName
+- mvn chatunitest:copy
+- mvn test
+
+Optional MUTAP:
+- mvn chatunitest:class -DselectClass=fully.qualified.ClassName -DphaseType=MUTAP
+
+The final report should not just mention tools by name. It should show how they were actually invoked in the project.
+
+
+=====================================================================
+11. TRACEABILITY PLAN
+=====================================================================
+Every major test should be traceable to a method, technique, and result.
+
+Recommended traceability matrix columns:
+- Test Item ID
+- Class
+- Method
+- Test Case ID
+- Technique Used (ISP / CFG / DFG / Logic / Mutation / LLM)
+- Purpose
+- Expected Result
+- Actual Result
+- Coverage Contribution
+- Mutation Contribution
+- Included in final report? yes/no
+
+This matrix will make final report writing much easier and also proves systematic work.
+
+
+=====================================================================
+12. PASS/FAIL AND QUALITY TARGETS FOR COMPLETION
+=====================================================================
+The project implementation should aim for the following completion standard.
+
+A method is considered adequately completed when:
+- manual tests exist and pass,
+- major partitions and boundaries are covered,
+- branch behavior is tested where relevant,
+- logic predicates are tested where relevant,
+- coverage evidence is collected,
+- mutation evidence is collected,
+- findings are documented.
+
+Overall project quality targets:
+- All 10 selected methods have implemented manual tests
+- Coverage results collected for all relevant classes
+- Strong evidence of branch-sensitive and boundary-sensitive testing
+- Mutation testing performed with PIT or fallback manual mutants
+- LLM component completed for 3 to 5 methods
+- Manual vs LLM comparison completed clearly
+- Final report includes critical analysis, not just screenshots
+
+A weak project would be one that:
+- only writes basic happy-path tests,
+- claims testing abstractions without showing actual implementation,
+- shows no traceability from analysis to code,
+- includes no mutation discussion,
+- treats LLM output as automatically correct,
+- lacks screenshots/graphs/evidence.
+
+
+=====================================================================
+13. RISKS DURING IMPLEMENTATION AND CONTINGENCY PLAN
+=====================================================================
+Risk 1: Maven or dependency setup issues
+Mitigation:
+- finalize environment early,
+- test build before writing many tests,
+- keep a working branch.
+
+Risk 2: JaCoCo or PIT compatibility issues
+Mitigation:
+- configure tools early,
+- run on a small target first,
+- use manual mutant fallback if PIT fails.
+
+Risk 3: Low branch/mutation effectiveness
+Mitigation:
+- review uncovered branches,
+- add boundary and exception tests,
+- use mutation survivors to guide new tests.
+
+Risk 4: LLM-generated tests fail to compile or are poor quality
+Mitigation:
+- document failures as part of qualitative analysis,
+- fix only minor issues needed to run,
+- use this as evidence of limitations rather than hiding it.
+
+Risk 5: Team members drift or duplicate work
+Mitigation:
+- maintain a central checklist,
+- assign method ownership clearly,
+- review progress every lab/week.
+
+Risk 6: Report becomes too descriptive and not evidence-based
+Mitigation:
+- collect screenshots and artifacts as testing proceeds,
+- keep a results folder organized from the beginning.
+
+
+=====================================================================
+14. FINAL REPORT CONTENT PLAN TIED TO IMPLEMENTATION
+=====================================================================
+The final report should reflect real work completed. Suggested structure:
+
+1. Introduction
+- Joda-Time overview
+- project goal
+- why this library was chosen
+
+2. Scope and Selected Methods
+- 5 classes / 10 methods
+- in scope / out of scope
+
+3. Testing Approach
+- ISP/BVA
+- CFG/DFG
+- logic-based testing
+- mutation testing
+- LLM-assisted testing
+
+4. Manual Test Design and Implementation
+- partition examples
+- representative test case tables
+- JUnit implementation summary
+
+5. Structural and Logic Analysis
+- CFG/DFG examples
+- predicate/clause analysis examples
+
+6. Coverage Results
+- JaCoCo results
+- discussion of uncovered areas
+
+7. Mutation Testing Results
+- PIT or manual mutants
+- surviving mutants and what they mean
+
+8. LLM-Assisted Testing Evaluation
+- setup
+- selected methods
+- generated tests
+- coverage comparison
+- mutation comparison
+- qualitative reflection
+
+9. Barriers and Resolutions
+- environment/tool difficulties
+- design difficulties
+- LLM issues
+- mutation issues
+
+10. Critical Reflection
+- what worked well
+- what did not
+- what would be improved
+- whether LLM tools are useful in real workflows
+
+11. Conclusion
+- summary of actual testing effectiveness
+
+12. Appendix
+- extra screenshots
+- full LLM history/Q&A requirement
+- extended tables
+- additional test examples
+
+
+=====================================================================
+15. WEEK-BY-WEEK EXECUTION PLAN FROM NOW UNTIL FINALIZATION
+=====================================================================
+This is the recommended operational sequence.
+
+Stage 1 – Immediate
+- Confirm repository builds
+- Confirm tooling works
+- Freeze selected methods
+- Create method analysis worksheet
+
+Stage 2
+- Complete ISP/BVA analysis for all 10 methods
+- Start manual JUnit implementation
+- Review immutability and boundary cases carefully
+
+Stage 3
+- Finish manual tests
+- Run tests successfully
+- Begin CFG/DFG and logic artifacts
+
+Stage 4
+- Configure and run JaCoCo
+- Refine tests based on uncovered code
+
+Stage 5
+- Configure and run PIT
+- Add mutation-targeted tests
+- If PIT fails, perform manual mutants
+
+Stage 6
+- Select 3 to 5 methods for LLM experiment
+- Configure ChatUniTest
+- Generate and copy tests
+- Compare manual vs LLM vs combined
+
+Stage 7
+- Consolidate tables, screenshots, diagrams, and logs
+- Draft final report sections using actual evidence
+
+Stage 8
+- Final review for completeness
+- Ensure appendix includes required LLM history
+- Build final PDF and ZIP
+
+
+=====================================================================
+16. DEFINITION OF DONE
+=====================================================================
+The project should be considered fully done only when ALL of the following are true:
+
+1. All 10 selected methods have completed manual tests.
+2. ISP/BVA analysis exists for all 10 methods.
+3. CFG/DFG and logic analysis exists for the strongest applicable methods and matches the implemented tests.
+4. JaCoCo coverage evidence has been generated and reviewed.
+5. Mutation testing evidence has been generated using PIT or manual mutants.
+6. At least 3 and at most 5 methods have been used for the LLM-assisted component.
+7. Manual vs LLM-assisted comparison tables are complete.
+8. The full required LLM history/interaction evidence has been preserved for the appendix.
+9. The final report contains findings, justification, barriers, critical analysis, and evidence, not just descriptions.
+10. The ZIP contains all necessary code, diagrams, screenshots, reports, and supporting files without unnecessary clutter.
+
+
+=====================================================================
+17. MOST IMPORTANT PRACTICAL PRIORITIES
+=====================================================================
+If time becomes limited, prioritize in this exact order:
+
+1. Stable manual tests for all 10 methods
+2. Strong boundary and exception coverage
+3. JaCoCo coverage evidence
+4. Mutation evidence
+5. LLM-assisted experiment for 3 to 5 methods
+6. High-quality comparison and critical analysis
+7. Report polish
+
+Reason:
+The strongest project is built on actual manual testing quality first. LLM comparison only has value if the manual baseline is strong and the evidence is credible.
+
+
+=====================================================================
+18. FINAL SUMMARY
+=====================================================================
+This project should be executed as a real testing workflow, not just as a report-writing exercise. The group already has a good Level Test Plan and a well-scoped set of Joda-Time classes and methods. The next step is to convert that plan into actual test implementation and measurable evidence.
+
+The successful version of this project will show that the group:
+- understood the selected Joda-Time methods deeply,
+- designed thoughtful boundary-sensitive and branch-sensitive manual tests,
+- implemented those tests in JUnit,
+- used structural and logic-based analysis meaningfully,
+- evaluated test strength through mutation testing,
+- critically assessed LLM-generated tests rather than trusting them automatically,
+- and produced a final report backed by real artifacts, metrics, and reflection.
+
+This plan is intended to guide the full remainder of the project work from implementation through final submission.
