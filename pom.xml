@@ -486,12 +486,31 @@
         <version>3.2.5</version>
         <configuration>
           <includes>
+            <include>**/Test*.java</include>
             <include>**/TestAllPackages.java</include>
             <include>**/*Test.java</include>
             <include>**/*Tests.java</include>
+            <include>**/*TestCase.java</include>
           </includes>
           <!-- disable fork to allow project to run locally -->
           <forkCount>0</forkCount>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>org.apache.maven.surefire</groupId>
+            <artifactId>surefire-junit-platform</artifactId>
+            <version>3.2.5</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+      <plugin>
+        <groupId>io.github.zju-aces-ise</groupId>
+        <artifactId>chatunitest-maven-plugin</artifactId>
+        <version>2.1.1</version>
+        <configuration>
+          <apiKeys>dummy-key</apiKeys>
+          <model>codeqwen:v1.5-chat</model>
+          <url>http://localhost:11434/v1/chat/completions</url>
         </configuration>
       </plugin>
       <!-- JaCoCo for code coverage -->
@@ -825,9 +844,7 @@
                     </goals>
                   </pluginExecutionFilter>
                   <action>
-                    <execute>
-                      <runOnIncremental>true</runOnIncremental>
-                    </execute>
+                    <ignore />
                   </action>
                 </pluginExecution>
               </pluginExecutions>
@@ -857,6 +874,13 @@
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
       <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.github.ZJU-ACES-ISE</groupId>
+      <artifactId>chatunitest-starter</artifactId>
+      <version>1.4.0</version>
+      <type>pom</type>
       <scope>test</scope>
     </dependency>
   </dependencies>
