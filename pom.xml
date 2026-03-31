@@ -508,9 +508,20 @@
         <artifactId>chatunitest-maven-plugin</artifactId>
         <version>2.1.1</version>
         <configuration>
-          <apiKeys>dummy-key</apiKeys>
+          <apiKeys>
+            <apiKey>ollama</apiKey>
+          </apiKeys>
           <model>codeqwen:v1.5-chat</model>
           <url>http://localhost:11434/v1/chat/completions</url>
+          <thread>false</thread>
+          <maxThreads>1</maxThreads>
+          <testNumber>1</testNumber>
+          <maxRounds>10</maxRounds>
+          <dependencyDepth>0</dependencyDepth>
+          <maxPromptTokens>12000</maxPromptTokens>
+          <maxResponseTokens>768</maxResponseTokens>
+          <ruleRepair>true</ruleRepair>
+          <examplePath>${project.basedir}/exampleUsage.json</examplePath>
         </configuration>
       </plugin>
       <!-- JaCoCo for code coverage -->
@@ -1096,8 +1107,8 @@
       <id>attach-additional-javadoc</id>
       <activation>
         <property>
-          <name>maven.javadoc.skip</name>
-          <value>!true</value>
+          <name>attach.additional.javadoc</name>
+          <value>true</value>
         </property>
       </activation>
       <build>
@@ -1134,6 +1145,10 @@
     <!-- Dependencies -->
     <joda-convert.version>1.9.2</joda-convert.version>
     <junit.version>5.9.3</junit.version>
+
+    <!-- Build behavior -->
+    <!-- Default skip to avoid environment-specific Javadoc doclet failures. -->
+    <maven.javadoc.skip>true</maven.javadoc.skip>
 
     <!-- Common control parameters -->
     <joda.publish.auto>false</joda.publish.auto><!-- false/true -->
