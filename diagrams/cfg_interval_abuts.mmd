@@ -1,0 +1,7 @@
+flowchart TD
+    A([Start abuts(interval)]) --> B{interval == null?}
+    B -- Yes --> C[now = currentTimeMillis]
+    C --> D[return (thisStart == now OR thisEnd == now)]
+    B -- No --> E[return (otherEnd == thisStart OR thisEnd == otherStart)]
+    D --> F([End])
+    E --> F

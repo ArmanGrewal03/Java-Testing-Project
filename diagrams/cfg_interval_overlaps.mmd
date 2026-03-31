@@ -1,9 +1,0 @@
-flowchart TD
-    A([Start overlaps(interval)]) --> B[thisStart=getStartMillis; thisEnd=getEndMillis]
-    B --> C{interval == null?}
-    C -- Yes --> D[now=currentTimeMillis]
-    D --> E{return thisStart < now AND now < thisEnd}
-    C -- No --> F[otherStart=interval.getStartMillis; otherEnd=interval.getEndMillis]
-    F --> G{return thisStart < otherEnd AND otherStart < thisEnd}
-    E --> H([End])
-    G --> H

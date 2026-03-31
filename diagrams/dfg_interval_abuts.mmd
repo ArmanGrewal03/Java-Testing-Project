@@ -1,0 +1,13 @@
+flowchart TD
+    A([Entry]) --> B[Def interval parameter]
+    B --> C{P-use interval == null}
+    C -- Yes --> D[Def now]
+    D --> E[P-use thisStart,now in clause1]
+    E --> F[P-use thisEnd,now in clause2]
+    F --> G[Return boolean]
+    C -- No --> H[Def otherStart, otherEnd]
+    H --> I[P-use otherEnd,thisStart in clause1]
+    I --> J[P-use thisEnd,otherStart in clause2]
+    J --> K[Return boolean]
+    G --> L([Exit])
+    K --> L

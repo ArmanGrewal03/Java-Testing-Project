@@ -1,7 +1,0 @@
-flowchart TD
-    A([Start plusDays(days)]) --> B{days == 0?}
-    B -- Yes --> C[return this]
-    B -- No --> D[instant = chronology.days.add(getMillis, days)]
-    D --> E[return withMillis(instant)]
-    C --> F([End])
-    E --> F

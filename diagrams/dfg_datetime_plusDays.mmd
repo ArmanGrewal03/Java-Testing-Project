@@ -1,9 +1,0 @@
-flowchart TD
-    A([Entry]) --> B[Def days (parameter)]
-    B --> C{P-use: days == 0}
-    C -- True --> D[Use this in return this]
-    C -- False --> E[C-use: days in add(getMillis, days)]
-    E --> F[Def instant]
-    F --> G[C-use: instant in withMillis(instant)]
-    G --> H([Exit])
-    D --> H
