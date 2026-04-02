@@ -1,10 +1,10 @@
 flowchart TD
-    A([Start gap(interval)]) --> B[interval = getReadableInterval(interval)]
-    B --> C[Load otherStart, otherEnd, thisStart, thisEnd]
-    C --> D{thisStart > otherEnd?}
-    D -- Yes --> E[return new Interval(otherEnd, thisStart, chronology)]
-    D -- No --> F{otherStart > thisEnd?}
-    F -- Yes --> G[return new Interval(thisEnd, otherStart, chronology)]
+    A([Start gap interval]) --> B[interval = getReadableInterval interval]
+    B --> C[Load bounds: otherStart, otherEnd, thisStart, thisEnd]
+    C --> D{thisStart greater than otherEnd?}
+    D -- Yes --> E[return Interval otherEnd to thisStart]
+    D -- No --> F{otherStart greater than thisEnd?}
+    F -- Yes --> G[return Interval thisEnd to otherStart]
     F -- No --> H[return null]
     E --> I([End])
     G --> I

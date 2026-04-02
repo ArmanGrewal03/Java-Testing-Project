@@ -1,9 +1,9 @@
 flowchart TD
-    A([Start overlap(interval)]) --> B[interval = getReadableInterval(interval)]
-    B --> C{overlaps(interval) == false?}
+    A([Start overlap interval]) --> B[interval = getReadableInterval(interval)]
+    B --> C{overlaps interval is false?}
     C -- Yes --> D[return null]
-    C -- No --> E[start = max(thisStart, otherStart)]
-    E --> F[end = min(thisEnd, otherEnd)]
-    F --> G[return new Interval(start, end, chronology)]
+    C -- No --> E[start = max thisStart otherStart]
+    E --> F[end = min thisEnd otherEnd]
+    F --> G[return new Interval]
     D --> H([End])
     G --> H

@@ -1,7 +1,7 @@
 flowchart TD
-    A([Start abuts(interval)]) --> B{interval == null?}
+    A([Start abuts interval]) --> B{interval is null?}
     B -- Yes --> C[now = currentTimeMillis]
-    C --> D[return (thisStart == now OR thisEnd == now)]
-    B -- No --> E[return (otherEnd == thisStart OR thisEnd == otherStart)]
+    C --> D[Check if start equals now or end equals now]
+    B -- No --> E[Check if otherEnd equals thisStart or thisEnd equals otherStart]
     D --> F([End])
     E --> F

@@ -3,12 +3,12 @@ flowchart TD
     B --> C[Def interval via getReadableInterval]
     C --> D[Def otherStart, otherEnd]
     D --> E[Def thisStart, thisEnd]
-    E --> F[P-use thisStart,otherEnd in cond1]
-    F --> G{cond1 true?}
-    G -- Yes --> H[C-use otherEnd,thisStart in return Interval]
-    G -- No --> I[P-use otherStart,thisEnd in cond2]
-    I --> J{cond2 true?}
-    J -- Yes --> K[C-use thisEnd,otherStart in return Interval]
+    E --> F[P-use thisStart in condition 1]
+    F --> G{Condition 1 true?}
+    G -- Yes --> H[C-use otherEnd, thisStart in return]
+    G -- No --> I[P-use otherStart, thisEnd in condition 2]
+    I --> J{Condition 2 true?}
+    J -- Yes --> K[C-use thisEnd, otherStart in return]
     J -- No --> L[Return null]
     H --> M([Exit])
     K --> M

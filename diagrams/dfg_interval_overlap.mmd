@@ -1,11 +1,11 @@
 flowchart TD
     A([Entry]) --> B[Def interval parameter]
-    B --> C[Def interval via getReadableInterval(interval)]
-    C --> D[P-use interval in overlaps(interval)]
-    D --> E{overlaps false?}
+    B --> C[Def interval via getReadableInterval]
+    C --> D[P-use interval in overlaps method]
+    D --> E{overlaps returns false?}
     E -- Yes --> F[Return null]
-    E -- No --> G[Def start=max(thisStart, otherStart)]
-    G --> H[Def end=min(thisEnd, otherEnd)]
-    H --> I[C-use start,end in new Interval(start,end,...)]
+    E -- No --> G[Def start using max]
+    G --> H[Def end using min]
+    H --> I[C-use start and end in return Interval]
     I --> J([Exit])
     F --> J
