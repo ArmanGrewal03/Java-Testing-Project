@@ -1,46 +1,57 @@
 package org.joda.time;
 
-import org.joda.time.Chronology;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.ReadableDuration;
-import org.joda.time.ReadableInterval;
-import org.joda.time.ReadablePeriod;
-import org.joda.time.chrono.ISOChronology;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.tz.FixedDateTimeZone;
-import org.mockito.*;
-import org.junit.jupiter.api.*;
-import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
-import java.io.Serializable;
-import org.joda.time.base.BaseInterval;
-import org.joda.time.format.ISODateTimeFormat;
-import org.joda.time.format.ISOPeriodFormat;
-import org.joda.time.format.PeriodFormatter;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class Interval_abuts_5_0_Test {
 
+    private final Interval base = new Interval(0, 1000);
+
     @Test
-    void testAbuts() throws Exception {
-        // Test with null interval
-        Interval abuts = new Interval(0, 1000);
-        ReadableInterval interval = null;
-        boolean result = (Boolean) abuts.getClass().getMethod("abuts", ReadableInterval.class).invoke(abuts, interval);
-        assertTrue(result);
-        // Test with intervals that abut at the start
-        interval = new Interval(500, 1500);
-        result = (Boolean) abuts.getClass().getMethod("abuts", ReadableInterval.class).invoke(abuts, interval);
-        assertFalse(result);
-        // Test with intervals that abut at the end
-        interval = new Interval(-500, 500);
-        result = (Boolean) abuts.getClass().getMethod("abuts", ReadableInterval.class).invoke(abuts, interval);
-        assertFalse(result);
-        // Test with intervals that do not abut
-        interval = new Interval(2000, 3000);
-        result = (Boolean) abuts.getClass().getMethod("abuts", ReadableInterval.class).invoke(abuts, interval);
-        assertFalse(result);
+    void adjacentBeforeTrue() {
+        assertTrue(base.abuts(new Interval(-500, 0)));
+    }
+
+    @Test
+    void adjacentAfterTrue() {
+        assertTrue(base.abuts(new Interval(1000, 1500)));
+    }
+
+    @Test
+    void overlapFalse() {
+        assertFalse(base.abuts(new Interval(500, 1500)));
+    }
+
+    @Test
+    void separatedGapFalse() {
+        assertFalse(base.abuts(new Interval(2000, 3000)));
+    }
+
+    @Test
+    void zeroLengthAtStartTrue() {
+        assertTrue(base.abuts(new Interval(0, 0)));
+    }
+
+    @Test
+    void zeroLengthAtEndTrue() {
+        assertTrue(base.abuts(new Interval(1000, 1000)));
+    }
+
+    @Test
+    void nullIntervalDeterministicNowCases() {
+        try {
+            DateTimeUtils.setCurrentMillisFixed(0);
+            assertTrue(base.abuts(null));
+
+            DateTimeUtils.setCurrentMillisFixed(1000);
+            assertTrue(base.abuts(null));
+
+            DateTimeUtils.setCurrentMillisFixed(500);
+            assertFalse(base.abuts(null));
+        } finally {
+            DateTimeUtils.setCurrentMillisSystem();
+        }
     }
 }
